@@ -1,0 +1,8 @@
+﻿  1.cpp
+c:\users\user\documents\курсач 3к\курсач\курсач\1.cpp(37): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\user\documents\курсач 3к\курсач\курсач\1.cpp(48): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\user\documents\курсач 3к\курсач\курсач\1.cpp(103): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\user\documents\курсач 3к\курсач\курсач\1.cpp(162): warning C4018: <: несоответствие типов со знаком и без знака
+c:\users\user\documents\курсач 3к\курсач\курсач\1.cpp(263): warning C4018: <: несоответствие типов со знаком и без знака
+  курсач.vcxproj -> C:\Users\user\Documents\курсач 3к\курсач\Debug\курсач.exe
+  курсач.vcxproj -> C:\Users\user\Documents\курсач 3к\курсач\Debug\курсач.pdb (Partial PDB)
