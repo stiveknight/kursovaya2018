@@ -18,6 +18,8 @@ vector <int> v_diam;
 vector <int> v_duo;
 vector <int> v_m;
 vector <int> v_exp;
+vector <int> v_clique;
+vector <int> v_indep;
 
 vector <int> used;
 vector <int> dolya;
@@ -227,7 +229,8 @@ void ex(vector <vector <int>> &g) {
 
 	if (b) {
 		v_exp.push_back(e);
-		cout << "Граф примитивный с экспонентой = " << e << endl;
+		//cout << "Граф примитивный с экспонентой = " << e << endl;
+		v_exp.push_back(e);
 		return;
 	}
 	else {
@@ -255,18 +258,110 @@ void ex(vector <vector <int>> &g) {
 			}
 			if (bb) {
 				v_exp.push_back(i);
-				cout << "Граф примитивный с экспонентой = " << i << endl;
+				//cout << "Граф примитивный с экспонентой = " << i << endl;
+				v_exp.push_back(i);
 				return;
 			}
 		}
 		if (!bb) {
 			v_exp.push_back(0);
-			cout << "Граф не примитивный" << endl;
+			//cout << "Граф не примитивный" << endl;
+			v_exp.push_back(0);
 			return;
 		}
 	}
-
 }
+
+void extend(vector <int> comsub, vector <int> &max_comsub, vector <int> candidates, set <int> not, vector <vector <int>> &gg) {
+	// алгоритм брона-кербоша
+	vector <int> new_candidates;
+	set <int> new_not;
+	while (candidates.size() != 0) {
+		bool b = false;
+		int cnt = 0;
+		for (int i = 0; i < not.size(); i++) {
+			cnt = 0;
+			for (int j = 0; j < candidates.size(); j++)
+				if (gg[i][candidates[j]] == 1)
+					cnt++;
+			if (cnt == candidates.size())
+				b = true;
+		}
+		if (b) 
+			return;
+
+		int v = candidates[0];
+		comsub.push_back(v);
+		for (int j = 0; j < candidates.size(); j++) {
+			if (gg[v][candidates[j]] == 1)
+				new_candidates.push_back(candidates[j]);
+		}
+
+		for (int item: not) {
+			if (gg[v][item] == 1)
+				new_not.insert(item);
+		}
+		if (new_candidates.size() == 0 && new_not.size() == 0){ // получается comsub - клика
+			if (comsub.size() > max_comsub.size())
+				max_comsub = comsub;
+		}
+
+		else 
+			extend(comsub, max_comsub, new_candidates, new_not, gg);
+
+		vector <int> tmp_candidates;
+		vector <int> tmp_comsub;
+		not.insert(v);
+		for (int i = 0; i < comsub.size(); i++){
+			if (comsub[i] != v) 
+				tmp_comsub.push_back(comsub[i]);
+		}
+		comsub = tmp_comsub;
+
+		for (int i = 0; i < candidates.size(); i++) {
+			if (candidates[i] != v)
+				tmp_candidates.push_back(candidates[i]);
+		}
+		candidates = tmp_candidates;
+	}
+
+	return;
+}
+
+void clique(vector <vector <int>> &g) { //максимальная клика
+	vector <int> comsub, max_comsub, candidates;
+	set <int> not;
+	for (int i = 0; i < n; i++)
+		candidates.push_back(i);
+	extend(comsub, max_comsub, candidates, not, g);
+	cout << "Максимальная клика графа = " << max_comsub.size() << endl;
+	v_clique.push_back(max_comsub.size());
+	return;
+}
+
+void indep(vector <vector <int>> &g) { // число независимости
+	vector <int> comsub, max_comsub, candidates;
+	set <int> not;
+	vector <vector <int>> dop_g(n, vector<int>(n, 0));
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (i != j) {
+				if (g[i][j] == 0)
+					dop_g[i][j] = 1;
+				else
+					dop_g[i][j] = 0;
+			}
+		}
+	}
+
+	for (int i = 0; i < n; i++)
+		candidates.push_back(i);
+	extend(comsub, max_comsub, candidates, not, dop_g);
+	cout << "Число независимости графа = " << max_comsub.size() << endl;
+	v_indep.push_back(max_comsub.size());
+	return;
+}
+
 
 int main() {
 	int kolvo = 0;
@@ -314,6 +409,9 @@ int main() {
 		duo(g);
 		
 		ex(g);
+
+		clique(g);
+		indep(g);
 
 		kolvo++;
 
