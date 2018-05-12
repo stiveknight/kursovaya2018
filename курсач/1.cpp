@@ -224,7 +224,7 @@ void duo() {
 
 void ex(vector<vector<int> > &g) {
 	int e = 1;
-	int emax = pow(n, 2) - 2 * n + 2;
+	int emax = 2*(n-1);
 	vector<vector<int> > gg(g);
 	vector<vector<int> > c(n, vector<int>(n));
 	
@@ -232,7 +232,7 @@ void ex(vector<vector<int> > &g) {
 	
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if (g[i][j] == 0 && i != j) {
+			if (g[i][j] == 0) {
 				b = false;
 				break;
 			}
@@ -261,7 +261,7 @@ void ex(vector<vector<int> > &g) {
 			bb = true;
 			for (int ii = 0; ii < n && bb; ii++) {
 				for (int jj = 0; jj < n; jj++) {
-					if (c[ii][jj] == 0 && ii != jj) {
+					if (c[ii][jj] == 0) {
 						bb = false;
 						break;
 					}
@@ -375,7 +375,7 @@ int main() {
 	int kolvo = 0;
 	setlocale(LC_ALL, "Russian");
 	//считывание матриц смежности графов в цикле
-	ifstream in("graphs7.txt");
+	ifstream in("graphs8.txt");
 	in >> n;
 	getline(in, str);
 	while (getline(in, str)) {
@@ -474,7 +474,7 @@ int main() {
 							{
 								for (int k = 0; k < kolvo; k++) {
 									if (v_komp[k] == *it1 && v_m[k] == *it2 && v_obh[k] == *it3 && v_treo[k] == *it4 &&
-										v_duo[k] == *it5 && v_rad[k] == *it6 && v_diam[k] == *it7 && v_exp[k] == *it8 &&
+										v_duo[k] == *it5 && v_rad[k] == *it6 && v_diam[k] == *it7 &&  v_exp[k] == *it8 &&
 										v_clique[k] == *it9 && v_indep[k] == *it10)
 										t++;
 								}
