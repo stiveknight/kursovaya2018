@@ -21,6 +21,17 @@ vector <int> v_exp;
 vector <int> v_clique;
 vector <int> v_indep;
 
+//ofstream out_diam("diam9.txt");
+//ofstream out_duo("duo9.txt");
+//ofstream out_komp("komp9.txt");
+//ofstream out_obh("obh9.txt");
+//ofstream out_rad("rad9.txt");
+//ofstream out_sv("sv9.txt");
+//ofstream out_treo("treo9.txt");
+//ofstream out_exp("exp9.txt");
+ofstream out_clique("clique9.txt");
+ofstream out_indep("indep9.txt");
+
 vector <int> used;
 vector <int> dolya;
 vector <int> p;
@@ -82,14 +93,17 @@ void komp_sv() {
 	if (komp == 1) {
 		//cout << "Да"; 
 		v_sv.push_back(1);
+		//out_sv << 1 << endl;
 	}
 	else {
 		//cout << "Нет"; 
 		v_sv.push_back(-1);
+		//out_sv << -1 << endl;
 	}
 	//cout << endl;
 	//cout << "Количество компонент связности: " << komp;
 	v_komp.push_back(komp);
+	//out_komp << komp << endl;
 	return;
 }
 
@@ -108,6 +122,7 @@ void obhv() {
 	if (obh.size() == 0) {
 		//cout << "Обхват равен бесконечности"; 
 		v_obh.push_back(-1);
+		//out_obh << -1 << endl;
 	}
 	else {
 		int min_ob = obh[0];
@@ -117,6 +132,7 @@ void obhv() {
 		}
 		//cout << "Обхват: " << min_ob;
 		v_obh.push_back(min_ob);
+		//out_obh << min_ob << endl;
 	}
 	p.clear();
 	obh.clear();
@@ -132,6 +148,7 @@ void treo(vector <vector <int>> &g) {
 					cnt++;
 	//cout << endl << "Количество треугольников: " << cnt;
 	v_treo.push_back(cnt);
+	//out_treo << cnt << endl;
 	return;
 }
 
@@ -158,8 +175,10 @@ void rad_diam() {
 	}
 	//cout << endl << "Радиус = " << rad;
 	v_rad.push_back(rad);
+	//out_rad << rad << endl;
 	//cout << endl << "Диаметр = " << diam;
 	v_diam.push_back(diam);
+	//out_diam << diam << endl;
 	return;
 }
 
@@ -202,6 +221,7 @@ void duo() {
 		if (!ok) {
 			//cout << endl << "Граф не двудольный";
 			v_duo.push_back(-1);
+			//out_duo << -1 << endl;
 			dolya.clear(); 
 			used.clear();
 			return;
@@ -212,10 +232,12 @@ void duo() {
 	if (ok) {
 		//cout << endl << "Граф двудольный"; 
 		v_duo.push_back(1);
+		//out_duo << 1 << endl;
 	}
 	else {
 		//cout << endl << "Граф не двудольный";  
 		v_duo.push_back(-1);
+		//out_duo << -1 << endl;
 	}
 	dolya.clear();
 	used.clear();
@@ -242,6 +264,7 @@ void ex(vector<vector<int> > &g) {
 	if (b) {
 		//cout << "Граф примитивный с экспонентой = " << e << endl;
 		v_exp.push_back(e);
+		//out_exp << e << endl;
 		return;
 	}
 	else {
@@ -270,18 +293,20 @@ void ex(vector<vector<int> > &g) {
 			if (bb) {
 				//cout << "Граф примитивный с экспонентой = " << i << endl;
 				v_exp.push_back(i);
+				//out_exp << i << endl;
 				return;
 			}
 		}
 		if (!bb) {
 			//cout << "Граф не примитивный" << endl;
 			v_exp.push_back(0);
+			//out_exp << 0 << endl;
 			return;
 		}
 	}
 }
 
-void extend(vector<int> comsub, vector<int> &max_comsub, vector<int> candidates, set<int> not, vector<vector<int> > &gg) {
+void extend(set<int> comsub, set<int> &max_comsub, vector<int> candidates, set<int> not, vector<vector<int> > &gg) {
 	// алгоритм брона-кербоша
 	vector <int> new_candidates;
 	set <int> new_not;
@@ -300,7 +325,7 @@ void extend(vector<int> comsub, vector<int> &max_comsub, vector<int> candidates,
 			return;
 
 		int v = candidates[0];
-		comsub.push_back(v);
+		comsub.insert(v);
 		for (int j = 0; j < candidates.size(); j++) {
 			if (gg[v][candidates[j]] == 1)
 				new_candidates.push_back(candidates[j]);
@@ -317,12 +342,12 @@ void extend(vector<int> comsub, vector<int> &max_comsub, vector<int> candidates,
 		else 
 			extend(comsub, max_comsub, new_candidates, new_not, gg);
 
-		vector<int> tmp_candidates;
-		vector<int> tmp_comsub;
+		vector <int> tmp_candidates;
+		set <int> tmp_comsub;
 		not.insert(v);
-		for (int i = 0; i < comsub.size(); i++){
-			if (comsub[i] != v) 
-				tmp_comsub.push_back(comsub[i]);
+		for (int item: comsub){
+			if (item != v) 
+				tmp_comsub.insert(item);
 		}
 		comsub = tmp_comsub;
 
@@ -337,20 +362,21 @@ void extend(vector<int> comsub, vector<int> &max_comsub, vector<int> candidates,
 }
 
 void clique(vector<vector<int> > &g) { //максимальная клика
-	vector <int> comsub, max_comsub, candidates;
-	set <int> not;
+	vector <int> candidates;
+	set <int> not, comsub, max_comsub;
 	for (int i = 0; i < n; i++)
 		candidates.push_back(i);
 	extend(comsub, max_comsub, candidates, not, g);
 	//cout << "Максимальная клика графа = " << max_comsub.size() << endl;
 	v_clique.push_back(max_comsub.size());
+	out_clique << max_comsub.size() << endl;
 	return;
 }
 
 void indep(vector<vector<int> > &g) { // число независимости
-	vector<int> comsub, max_comsub, candidates;
-	set <int> not;
-	vector<vector<int> > dop_g(n, vector<int>(n, 0));
+	vector<int> candidates;
+	set <int>  comsub, max_comsub, not;
+	vector <vector<int> > dop_g(n, vector<int>(n, 0));
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			if (i != j) {
@@ -360,13 +386,28 @@ void indep(vector<vector<int> > &g) { // число независимости
 					dop_g[i][j] = 0;
 			}
 		}
-	}
+	}	
+	
+	//for (int i = 0; i < n; i++) {
+	//	cout << endl;
+	//	for (int j = 0; j < n; j++)
+	//		cout << g[i][j];
+	//}
+	//cout << endl;
+	//for (int i = 0; i < n; i++) {
+	//	cout << endl;
+	//	for (int j = 0; j < n; j++)
+	//		cout << dop_g[i][j];
+	//}
+
+	//cout << endl;
 
 	for (int i = 0; i < n; i++)
 		candidates.push_back(i);
 	extend(comsub, max_comsub, candidates, not, dop_g);
 	//cout << "Число независимости графа = " << max_comsub.size() << endl;
 	v_indep.push_back(max_comsub.size());
+	out_indep << max_comsub.size() << endl;
 	return;
 }
 
@@ -374,8 +415,9 @@ void indep(vector<vector<int> > &g) { // число независимости
 int main() {
 	int kolvo = 0;
 	setlocale(LC_ALL, "Russian");
+	double start_time = clock();
 	//считывание матриц смежности графов в цикле
-	ifstream in("graphs8.txt");
+	ifstream in("graphs9.txt");
 	in >> n;
 	getline(in, str);
 	while (getline(in, str)) {
@@ -456,36 +498,102 @@ int main() {
 		s_indep.insert(v_indep[i]);
 
 	}
-	vector <int> klass;
-	unsigned int start_time = clock();
+
+	double end_time = clock();
+	cout << "Время инициализации: " << (end_time - start_time) / CLOCKS_PER_SEC << endl;
+
 	set <int>::iterator it1, it2, it3, it4, it5, it6, it7, it8, it9, it10;
 	int t = 0;
-	for (it1 = s_komp.begin(); it1 != s_komp.end(); it1++)
-		for (it2 = s_m.begin(); it2 != s_m.end(); it2++)
-			for (it3 = s_obh.begin(); it3 != s_obh.end(); it3++)
-				for (it4 = s_treo.begin(); it4 != s_treo.end(); it4++)
-					for (it5 = s_duo.begin(); it5 != s_duo.end(); it5++)
-						for (it6 = s_rad.begin(); it6 != s_rad.end(); it6++)
-							for (it7 = s_diam.begin(); it7 != s_diam.end(); it7++)
-								for (it8 = s_exp.begin(); it8 != s_exp.end(); it8++)
-									for (it9 = s_clique.begin(); it9 != s_clique.end(); it9++)
-										for (it10 = s_indep.begin(); it10 != s_indep.end(); it10++)
+	long long invar_cnt = s_sv.size() * s_komp.size() * s_obh.size() * s_treo.size() *
+		s_rad.size() * s_diam.size() * s_duo.size() * s_m.size() * s_exp.size() * s_clique.size() * s_indep.size();
+	cout << "Ожидаемое колличество комбинаций инвариантов: " << invar_cnt << endl;
+	cout << "Ожидаемое колличество операций: " << invar_cnt * kolvo << endl;
 
-							{
-								for (int k = 0; k < kolvo; k++) {
-									if (v_komp[k] == *it1 && v_m[k] == *it2 && v_obh[k] == *it3 && v_treo[k] == *it4 &&
-										v_duo[k] == *it5 && v_rad[k] == *it6 && v_diam[k] == *it7 &&  v_exp[k] == *it8 &&
-										v_clique[k] == *it9 && v_indep[k] == *it10)
-										t++;
+	start_time = clock();   // Время основного обхода
+	map<vector<int>, int> klass;
+	for (int k = 0; k < kolvo; k++) {
+		for (it1 = s_komp.begin(); it1 != s_komp.end(); it1++) {
+			if (v_komp[k] != *it1)
+				continue;
+			for (it2 = s_m.begin(); it2 != s_m.end(); it2++) {
+				if (v_m[k] != *it2)
+					continue;
+				for (it3 = s_obh.begin(); it3 != s_obh.end(); it3++) {
+					if (v_obh[k] != *it3)
+						continue;
+					for (it4 = s_treo.begin(); it4 != s_treo.end(); it4++) {
+						if (v_treo[k] != *it4)
+							continue;
+						for (it5 = s_duo.begin(); it5 != s_duo.end(); it5++) {
+							if (v_duo[k] != *it5)
+								continue;
+							for (it6 = s_rad.begin(); it6 != s_rad.end(); it6++) {
+								if (v_rad[k] != *it6)
+									continue;
+								for (it7 = s_diam.begin(); it7 != s_diam.end(); it7++) {
+									if (v_diam[k] != *it7)
+										continue;
+									for (it8 = s_exp.begin(); it8 != s_exp.end(); it8++) {
+										if (v_exp[k] != *it8)
+											continue;
+										for (it9 = s_clique.begin(); it9 != s_clique.end(); it9++) {
+											if (v_clique[k] != *it9)
+												continue;
+											for (it10 = s_indep.begin(); it10 != s_indep.end(); it10++) {
+												if (v_indep[k] != *it10)
+													continue;
+												vector<int> combo = { *it1, *it2, *it3, *it4,  *it5, *it6, *it7, *it8, *it9, *it10 };
+												klass[combo]++;
+											}
+										}
+									}
 								}
-								if (t != 0) klass.push_back(t);
-								t = 0;
 							}
-	unsigned int end_time = clock();
-	unsigned int search_time = end_time - start_time;
-	cout << klass.size();
-	cout << endl << (float(search_time)) / CLOCKS_PER_SEC;
+						}
+					}
+				}
+			}
+		}
+	}
+	end_time = clock();
+	double optim_time = end_time - start_time;
+	start_time = clock();
+	end_time = clock();
+
+	cout << "Ответ: " << klass.size() << endl;
+	cout << "Время: " << (optim_time) / CLOCKS_PER_SEC << endl;
 	system("pause");
 	return 0;
+
+	//vector <int> klass;
+	//unsigned int start_time = clock();
+	//set <int>::iterator it1, it2, it3, it4, it5, it6, it7, it8, it9, it10;
+	//int t = 0;
+	//for (it1 = s_komp.begin(); it1 != s_komp.end(); it1++)
+	//	for (it2 = s_m.begin(); it2 != s_m.end(); it2++)
+	//		for (it3 = s_obh.begin(); it3 != s_obh.end(); it3++)
+	//			for (it4 = s_treo.begin(); it4 != s_treo.end(); it4++)
+	//				for (it5 = s_duo.begin(); it5 != s_duo.end(); it5++)
+	//					for (it6 = s_rad.begin(); it6 != s_rad.end(); it6++)
+	//						for (it7 = s_diam.begin(); it7 != s_diam.end(); it7++)
+	//							for (it8 = s_exp.begin(); it8 != s_exp.end(); it8++)
+	//								for (it9 = s_clique.begin(); it9 != s_clique.end(); it9++)
+	//									for (it10 = s_indep.begin(); it10 != s_indep.end(); it10++)
+
+	//						{
+	//							for (int k = 0; k < kolvo; k++) {
+	//								if (v_komp[k] == *it1 && v_m[k] == *it2 && v_obh[k] == *it3 && v_treo[k] == *it4 &&
+	//									v_duo[k] == *it5 && v_rad[k] == *it6 && v_diam[k] == *it7 &&  v_exp[k] == *it8 &&
+	//									v_clique[k] == *it9 && v_indep[k] == *it10)
+	//									t++;
+	//							}
+	//							if (t != 0) klass.push_back(t);
+	//							t = 0;
+	//						}
+	//unsigned int end_time = clock();
+	//unsigned int search_time = end_time - start_time;
+	//cout << klass.size();
+	//cout << endl << (float(search_time)) / CLOCKS_PER_SEC;
+
 }
 
